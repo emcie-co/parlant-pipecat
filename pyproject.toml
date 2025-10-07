@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "parlant-pipecat"
+version = "0.1.0"
+description = ""
+authors = ["Yam Marcovitz <yam@emcie.co>"]
+readme = "README.md"
+packages = [{ include = "parlant/contrib/pipecat" }]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pipecat-ai = { extras = ["soundfile"], version = "^0.0" }
+parlant-client = "^3.0"
+soundfile = "^0.13"
+#onnxruntime = "^1.23"
+#opencv-python = "^4.12"
+#pyaudio = "^0.2"
+
+
+[tool.poetry.group.dev.dependencies]
+pipecat-ai = { extras = [
+    "cartesia",
+    "openai",
+    "webrtc",
+    "silero",
+    "local-smart-turn-v3",
+    "runner",
+], version = "^0.0" }
+python-dotenv = "^1.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
