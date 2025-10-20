@@ -106,7 +106,7 @@ class ParlantService(AIService):
         parlant_config: ParlantConfig = ParlantConfig(),
         agent_greeting: str | None = DEFAULT_GREETING,
         filler_phrase_provider: Callable[
-            [FillerPhraseProviderParams], str | None
+            [FillerPhraseProviderParams], Awaitable[str | None]
         ] = default_filler_phrase_provider,
         typing_track_config: TypingTrackConfig = TypingTrackConfig(),
     ):
@@ -169,7 +169,7 @@ class ParlantService(AIService):
         return self._default_agent_id
 
     async def _start_typing_task(self) -> None:
-        if not self._use_typing_sounds:
+        if not self._typing_track_params.use_typing_track:
             return
 
         chunk_ms = 50
@@ -280,19 +280,22 @@ class ParlantService(AIService):
                                     + DEFAULT_TIME_TO_WAIT_BETWEEN_TYPING_AND_FILLER_PHRASE
                                     < time.monotonic()
                                 ):
-                                    filler_phrase = await self._filler_phrase_provider(
-                                        FillerPhraseProviderParams(
-                                            session_id=self._parlant_session_id,
-                                            agent_id=await self._get_agent_id(),
-                                            customer_id=await self._parlant_config.customer_id_provider()
-                                            if self._parlant_config.customer_id_provider
-                                            else None,
-                                            last_agent_message=last_agent_message,
-                                            last_customer_message=self._last_customer_message,
+                                    if (
+                                        filler_phrase
+                                        := await self._filler_phrase_provider(
+                                            FillerPhraseProviderParams(
+                                                session_id=self._parlant_session_id,
+                                                agent_id=await self._get_agent_id(),
+                                                customer_id=await self._parlant_config.customer_id_provider()
+                                                if self._parlant_config.customer_id_provider
+                                                else None,
+                                                last_agent_message=last_agent_message,
+                                                last_customer_message=self._last_customer_message,
+                                            )
                                         )
-                                    )
-                                    await self._speak(filler_phrase)
-                                    await asyncio.sleep(1)
+                                    ):
+                                        await self._speak(filler_phrase)
+                                        await asyncio.sleep(1)
                     elif event.kind == "message":
                         last_agent_message = event.data["message"]  # type: ignore
                         await self._speak(last_agent_message)

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "parlant-pipecat"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Yam Marcovitz <yam@emcie.co>"]
 readme = "README.md"
@@ -26,6 +26,7 @@ pipecat-ai = { extras = [
     "runner",
 ], version = "^0.0" }
 python-dotenv = "^1.1"
+mypy = "^1.18.2"
 
 [build-system]
 requires = ["poetry-core"]
